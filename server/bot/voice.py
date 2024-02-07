@@ -1,3 +1,4 @@
+import discord
 from discord.ext.commands import Bot
 
 class Bot_Voice():
@@ -6,4 +7,4 @@ class Bot_Voice():
 
     async def join_voice_channel(self, channel_id: int):
         voice_channel = self.bot.get_channel(channel_id)
-        await voice_channel.connect()
+        voice_client = await voice_channel.connect()
