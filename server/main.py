@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import messages, voice_routes
+from routes import messages, voice_routes, image_routes
 from bot import client
 
 app = FastAPI()
@@ -7,6 +7,7 @@ app = FastAPI()
 #app routes
 app.include_router(messages.router)
 app.include_router(voice_routes.router)
+app.include_router(image_routes.router)
 
 @app.get("/")
 def root():
