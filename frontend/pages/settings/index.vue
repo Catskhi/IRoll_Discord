@@ -3,6 +3,8 @@
 const token = ref<string>('')
 const loadingSaveToken = ref<boolean>(false)
 
+const toast = useToast()
+
 const submitForm = async (event: Event) => {
     event.preventDefault()
 }
@@ -14,6 +16,14 @@ const saveToken = async () => {
         body: {
             token: token.value
         }
+    })
+    .then(() => {
+        toast.add({
+            title: 'Saved token',
+            icon: 'i-heroicons-check-circle',
+            timeout: 3000
+        })
+        token.value = ''
     })
     loadingSaveToken.value = false
 }
@@ -36,5 +46,6 @@ const saveToken = async () => {
                 </div>
             </div>
         </form>
+        <!-- <UNotification icon="i-heroicons-check-circle" title="Success" description="Token saved." :id="1" :timeout="5000" /> -->
     </div>
 </template>
