@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import messages, voice_routes, image_routes, configuration
+from routes import messages, voice_routes, image_routes, configuration, npc_routes
 from bot import client
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +22,7 @@ app.include_router(messages.router)
 app.include_router(voice_routes.router)
 app.include_router(image_routes.router)
 app.include_router(configuration.router)
+app.include_router(npc_routes.router)
 
 @app.get("/")
 def root():
