@@ -40,5 +40,14 @@ class Settings():
                 with open(self.settings_file_path, 'w') as json_file:
                     json.dump({value_name: new_value}, json_file, indent=4)
 
+    def get_settings_data(self):
+        with open(self.settings_file_path, 'r') as json_file:
+            try:
+                data = json.load(json_file)
+                return data
+            except:
+                print('An error occurred while trying to open the settings file.')
+
+
 
 settings = Settings()
