@@ -9,3 +9,7 @@ class Bot_Images():
     async def send_image(self, image_path: str, channel_id: int) -> None:
         channel = self.bot.get_channel(channel_id)
         await channel.send(file=discord.File(image_path))
+
+    async def send_image_with_text(self, text: str, image_path: str, channel_id: int) -> None:
+        channel = self.bot.get_channel(channel_id)
+        await channel.send(text, file=discord.File(image_path))
