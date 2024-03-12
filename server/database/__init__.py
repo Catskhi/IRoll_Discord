@@ -1,12 +1,15 @@
 import os
 from sqlmodel import SQLModel, create_engine
-import models
+from database import models
 
 class IrollDatabase():
     def __init__(self):
         self.database_dir_path = '../Data'
         self.start_database_dir()
-        self.connect()
+        self.sqlite_file_name = 'database.db'
+        self.sqlite_url = f'sqlite:///../Data/{self.sqlite_file_name}'
+        self.engine = create_engine(self.sqlite_url)
+        self.create_models()
 
     def start_database_dir(self):
         if not os.path.exists(self.database_dir_path):
@@ -15,10 +18,7 @@ class IrollDatabase():
             except:
                 raise Exception("Can't create the data directory.")
 
-    def connect(self):
-        sqlite_file_name = 'database.db'
-        sqlite_url = f'sqlite:///../Data/{sqlite_file_name}'
-        engine = create_engine(sqlite_url)
-        SQLModel.metadata.create_all(engine)
+    def create_models(self):
+        SQLModel.metadata.create_all(self.engine)
 
 irollDatabase = IrollDatabase()
