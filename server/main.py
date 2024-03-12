@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from routes import messages, voice_routes, image_routes, configuration, npc_routes
 from bot import client
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +17,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+#static files
+app.mount('/images', StaticFiles(directory='images'), name='images')
 
 #app routes
 app.include_router(messages.router)
