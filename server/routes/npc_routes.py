@@ -2,9 +2,18 @@ from fastapi import APIRouter, Form, File, UploadFile
 from bot.images import Bot_Images
 from bot import client
 from typing import Annotated
+from database.models import Npc
+from database import irollDatabase
+from sqlmodel import Session
 
 router = APIRouter()
 bot_images = Bot_Images(client.get_bot_client())
+
+def create_npc(name: str, description: str, image_url: str):
+    npc = Npc(name=name, profile_picture_url=image_url, description=description)
+    session = Session(irollDatabase.engine)
+    session.add(npc)
+    session.commit()
 
 @router.post('/send_npc/')
 async def send_npc(
@@ -20,6 +29,11 @@ async def send_npc(
         **{name}**
 {description}
     """
+
+    try:
+        create_npc(name, description, f'images/{file.filename}')
+    except Exception as error:
+        print(error)
 
     await bot_images.send_image_with_text(message, f'images/{file.filename}', channel_id)
 
