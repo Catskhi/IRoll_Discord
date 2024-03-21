@@ -18,16 +18,15 @@ const goToMainPage = async () => {
 
 <template>
     <nav class="grid grid-cols-2">
-        <h1 class="bg- h-16 flex items-center pl-5 select-none cursor-pointer"
-            @click="goToMainPage"
+        <div class="h-16 flex items-center pl-5 select-none"
         >
-            <h1 class="text-xl group">
+            <h1 class="text-xl group cursor-pointer" @click="goToMainPage">
                 <span class="text-[35px] group-hover:text-red-500 transition-all duration-150">
                     <Icon name="game-icons:dice-fire" /> 
                 </span>
                 IRoll <span class="group-hover:text-[#7289da] transition-all duration-150">Discord</span>
             </h1>
-        </h1>
+        </div>
         <div class="flex items-center justify-end pr-10">
             <UButton
                 :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'"
