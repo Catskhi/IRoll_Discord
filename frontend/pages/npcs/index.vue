@@ -1,87 +1,69 @@
 <script setup lang="ts">
 
-const imageUrl = ref<string>('')
-const imageFile = ref<Blob | null>(null)
-const npcName = ref<string>('')
-const npcDescription = ref<string>('')
-const loadingUpload = ref<boolean>(false)
+interface npc_data {
+    id: number,
+    name: string
+    description: string,
+    profile_picture_url: string,
+}
 
+const npcs = ref<Array<npc_data>>([])
+const api_url : string = 'http://localhost:8000/'
 const toast = useToast()
 
-const npc_channel = ref<string>('')
-
-const { data } = await useFetch('http://localhost:8000/get_bot_configs/', {
+const { data } = await useFetch<npc_data>('http://localhost:8000/get_npcs/', {
     server: false,
     onResponse({response}) {
-        npc_channel.value = response._data.npc_channel
+        console.log(response._data)
+        npcs.value = response._data
     }
 })
 
-const handleFileInput = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    if (input.files && input.files[0]) {
-        imageFile.value = input.files[0]
-        const reader = new FileReader()
-        reader.onload = () => {
-            if (typeof reader.result === 'string') {
-                imageUrl.value = reader.result
-            }
-        }
-        reader.readAsDataURL(input.files[0])
-    }
-}
-
-const sendNpcToServer = async () => {
-    loadingUpload.value = true
-    const formData = new FormData()
-    formData.append('name', npcName.value)
-    formData.append('description', npcDescription.value)
-    formData.append('channel_id', npc_channel.value)
-    formData.append('file', imageFile.value as Blob)
-    await $fetch('http://localhost:8000/send_npc/', {
-        method: 'POST',
-        body: formData
+function copyDescription(description: string) {
+    console.log(description)
+    navigator.clipboard.writeText(description)
+    toast.add({
+        title: 'Description copied.',
+        timeout: 1500
     })
-    .catch((error) => {
-        console.log(error)
-        toast.add({
-            title: 'An error occurred while sending the NPC to discord.',
-            color: 'red'
-        })
-    })
-    loadingUpload.value = false
 }
 
 </script>
 
 <template>
-    <div class="px-5 mt-5">
-        <p class="text-center text-xl font-bold">NPC Picture</p>
-        <div class="mt-5 flex items-center justify-center">
-            <div class="border-2 border-gray-500 rounded h-72 w-1/2 flex items-center justify-center
-                cursor-pointer relative"
-            >
-                <p class="text-gray-400">Select an image</p>
-                <input class="border-2 w-full h-full bg-red-500 absolute opacity-0 cursor-pointer" type="file" accept="image/*"
-                    @change="handleFileInput"
+    <div class="px-5 mt-5 grid lg:grid-cols-3 gap-3">
+        <UCard v-for="npc in npcs" class="">
+            <div class="flex justify-center">
+                <NuxtImg :src="'http://localhost:8000/' + npc.profile_picture_url"
+                    class="w-64"
                 />
-                <img :src="imageUrl" class="w-full h-full absolute rounded pointer-events-none object-contain" />
             </div>
-        </div>
-        <div class="w-full flex items-center justify-center mt-5">
-            <div class="w-1/2">
-                <p class="text-center text-xl font-bold">NPC Name</p>
-                <UInput type="text" placeholder="NPC Name" class="mt-5" size="lg" v-model="npcName" />
-                <p class="text-center text-xl font-bold mt-5">NPC Description</p>
-                <UTextarea class="mt-5" placeholder="The NPC description..." :rows="6" v-model="npcDescription" />
-                <div class="flex items-center justify-center mt-5">
-                    <UButton color="primary" variant="solid" size="xl" class="mt-3" block
-                        @click="sendNpcToServer" :loading="loadingUpload"
-                    >
-                        Send
-                    </UButton>
+            <template #footer>
+                <div class="flex items-center justify-center pl-3 pr-5">
+                    <p class="text-2xl truncate">
+                        {{ npc.name }}
+                    </p>
+                    <div class="text-xl w-10 flex justify-center cursor-pointer
+                        hover:dark:text-slate-400
+                    ">
+                        <Icon name="mdi:pencil" />
+                    </div>
                 </div>
-            </div>
-        </div>
+                <div class="flex items-center relative mt-3">
+                    <p class="px-3 text-lg">Description:</p>
+                    <button @click="copyDescription(npc.description)"
+                    class="flex items-end p-1 rounded absolute right-5 *:
+                       dark:text-slate-400 dark:hover:text-white
+                       text-zinc-600 hover:text-black
+                       text-xl
+                    ">
+                        <Icon name="heroicons:clipboard-document" />
+                    </button>
+                </div>
+                <p class="dark:text-slate-300 dark max-h-36 overflow-scroll py-y px-3 text-justify mt-3 h-36">
+                    {{ npc.description }}
+                </p>
+            </template>
+        </UCard>
     </div>
 </template>
