@@ -4,7 +4,7 @@ from bot import client
 from typing import Annotated
 from database.models import Npc
 from database import irollDatabase
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 router = APIRouter()
 bot_images = Bot_Images(client.get_bot_client())
@@ -14,6 +14,7 @@ def create_npc(name: str, description: str, image_url: str):
     session = Session(irollDatabase.engine)
     session.add(npc)
     session.commit()
+
 
 @router.post('/send_npc/')
 async def send_npc(
@@ -43,3 +44,10 @@ async def send_npc(
         "channel_id": channel_id,
         "file": file.filename
     }
+
+@router.get('/get_npcs/')
+async def get_npcs():
+    session = Session(irollDatabase.engine)
+    statement = select(Npc)
+    npcs = session.exec(statement).all()
+    return npcs
