@@ -1,13 +1,18 @@
-from fastapi import APIRouter, Form, File, UploadFile
+from fastapi import APIRouter, Form, File, UploadFile, HTTPException
 from bot.images import Bot_Images
 from bot import client
 from typing import Annotated
-from database.models import Npc
+from database.models import Npc, NpcUpdate, NpcCreate
 from database import irollDatabase
 from sqlmodel import Session, select
+from pydantic import BaseModel
+import os
 
 router = APIRouter()
 bot_images = Bot_Images(client.get_bot_client())
+
+class Npc_model(BaseModel):
+    id: int
 
 def create_npc(name: str, description: str, image_url: str):
     npc = Npc(name=name, profile_picture_url=image_url, description=description)
@@ -45,9 +50,55 @@ async def send_npc(
         "file": file.filename
     }
 
+@router.post('/save_npc_image/{npc_id}')
+async def save_npc_image(npc_id: int, new_image: Annotated[UploadFile, File()]):
+    try:
+        file_type = new_image.filename.split('.')[-1]
+        if not os.path.exists('images/npcs/'):
+            os.mkdir('images/npcs/')
+        with open(f'images/npcs/{npc_id}.{file_type}', 'wb') as f:
+            f.write(await new_image.read())
+        return 'images/{npc_id}'
+    except Exception as error:
+        print(error)
+        raise HTTPException(status_code=500, detail="An error occurred while saving the image to the database.")
+
+@router.patch('/npc/{npc_id}')
+async def update_npc(npc_id: int, npc: NpcUpdate):
+    with Session(irollDatabase.engine) as session:
+        db_npc = session.get(Npc, npc_id)
+        if not db_npc:
+            raise HTTPException(status_code=400, detail="Invalid npc id.")
+        npc_data = npc.model_dump(exclude_unset=True)
+        db_npc.sqlmodel_update(npc_data)
+        session.add(db_npc)
+        session.commit()
+        session.refresh(db_npc)
+        return db_npc
+        return 'Success'
+
+@router.post('/npc/')
+async def create_npc(npc: NpcCreate):
+    with Session(irollDatabase.engine) as session:
+        db_npc = Npc.model_validate(npc)
+        session.add(db_npc)
+        session.commit()
+        session.refresh(db_npc)
+        return db_npc
+
 @router.get('/get_npcs/')
 async def get_npcs():
     session = Session(irollDatabase.engine)
     statement = select(Npc)
     npcs = session.exec(statement).all()
     return npcs
+
+@router.post('/get_npc/')
+async def get_npc(npc: Npc):
+    session = Session(irollDatabase.engine)
+    try:
+        statement = select(Npc).where(Npc.id == npc.id)
+        npc = session.exec(statement).one()
+        return npc
+    except:
+        raise HTTPException(status_code=400, detail="Invalid npc id.")
