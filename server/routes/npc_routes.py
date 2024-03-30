@@ -2,7 +2,7 @@ from fastapi import APIRouter, Form, File, UploadFile, HTTPException
 from bot.images import Bot_Images
 from bot import client
 from typing import Annotated, Optional
-from database.models import Npc, NpcUpdate, NpcCreate
+from database.models import Npc, NpcUpdate, NpcCreate, NpcRead
 from database import irollDatabase
 from sqlmodel import Session, select
 from pydantic import BaseModel
@@ -69,7 +69,7 @@ async def save_npc_image(new_image: Annotated[UploadFile, File()], old_image_url
         print(error)     
         raise HTTPException(status_code=500, detail="An error occurred while saving the image to the server.")  
 
-@router.patch('/npc/{npc_id}')
+@router.patch('/npc/{npc_id}', response_model=NpcRead)
 async def update_npc(npc_id: int, npc: NpcUpdate):
     with Session(irollDatabase.engine) as session:
         db_npc = session.get(Npc, npc_id)
@@ -81,7 +81,6 @@ async def update_npc(npc_id: int, npc: NpcUpdate):
         session.commit()
         session.refresh(db_npc)
         return db_npc
-        return 'Success'
 
 @router.post('/npc/')
 async def create_npc(npc: NpcCreate):
