@@ -3,6 +3,13 @@
 const route = useRoute()
 const id: number = Number(route.params.id)
 
+interface Npc {
+    id: number,
+    name: string,
+    description: string,
+    profile_picture_url: string,
+}
+
 onBeforeMount(() => {
    if (isNaN(Number(route.params.id))) {
     navigateTo('/npcs/add')
@@ -12,5 +19,5 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <h1>{{ id }}</h1>
+    <NpcsForm :npc_id="id" />
 </template>
