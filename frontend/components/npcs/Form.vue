@@ -91,6 +91,7 @@ const saveNpc = async () => {
                 }
             })
             toast.add({title: 'Successfully saved NPC.', color: 'green'})
+            await useRouter().push('/npcs/')
         } catch (error) {
             toast.add({title: 'An error occurred when saving the NPC on the database.', color: 'red'})
         }
@@ -102,7 +103,10 @@ const saveNpc = async () => {
 
 const updateNpc = async () => {
     loadingUpload.value = true
-    let newNpcImageUrl: string = ''
+    let updateBody: {[key: string]: any} = {
+        name: npcName.value,
+        description: npcDescription.value 
+    }
     try {
         if (imageFile.value) {
             const imageForm = new FormData()
@@ -112,7 +116,9 @@ const updateNpc = async () => {
                 method: 'POST',
                 body: imageForm,
                 onResponse({response}) {
-                    newNpcImageUrl = response._data.image_url
+                    if ((response._data.image_url as string).length > 0) {
+                        updateBody.profile_picture_url = response._data.image_url
+                    }
                 },
                 onResponseError({response}) {
                     toast.add({title: 'An error occurred while saving the NPC image.', color: 'red'})
@@ -121,13 +127,10 @@ const updateNpc = async () => {
         }
         await $fetch('http://localhost:8000/npc/' + props.npc_id, {
             method: 'PATCH',
-            body: {
-                name: npcName.value,
-                profile_picture_url: newNpcImageUrl,
-                description: npcDescription.value
-            }
+            body: updateBody
         })
         toast.add({title: 'Updated NPC successfully.', color: 'green'})
+        await useRouter().push('/npcs/')
     } catch (error) {
         toast.add({title: 'An error occurred while saving the NPC.', color: 'red'})
     }
