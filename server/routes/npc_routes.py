@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Form, File, UploadFile, HTTPException
 from bot.images import Bot_Images
 from bot import client
-from typing import Annotated
+from typing import Annotated, Optional
 from database.models import Npc, NpcUpdate, NpcCreate
 from database import irollDatabase
 from sqlmodel import Session, select
 from pydantic import BaseModel
 import os
+import uuid
 
 router = APIRouter()
 bot_images = Bot_Images(client.get_bot_client())
@@ -50,18 +51,23 @@ async def send_npc(
         "file": file.filename
     }
 
-@router.post('/save_npc_image/{npc_id}')
-async def save_npc_image(npc_id: int, new_image: Annotated[UploadFile, File()]):
+@router.post('/save_npc_image/')
+async def save_npc_image(new_image: Annotated[UploadFile, File()], old_image_url: Optional[str] = Form(None)):
+    image_id = uuid.uuid4()
+    file_type = new_image.filename.split('.')[-1]
+    if not os.path.exists('images/npcs/'):
+        os.mkdir('images/npcs/')
     try:
-        file_type = new_image.filename.split('.')[-1]
-        if not os.path.exists('images/npcs/'):
-            os.mkdir('images/npcs/')
-        with open(f'images/npcs/{npc_id}.{file_type}', 'wb') as f:
-            f.write(await new_image.read())
-        return 'images/{npc_id}'
+        if old_image_url:
+            os.remove(f'{old_image_url}')
+        with open(f'images/npcs/{image_id}.{file_type}', 'wb') as file:
+            file.write(await new_image.read())
+        return {
+            'image_url': f'images/npcs/{image_id}.{file_type}'
+        }
     except Exception as error:
-        print(error)
-        raise HTTPException(status_code=500, detail="An error occurred while saving the image to the database.")
+        print(error)     
+        raise HTTPException(status_code=500, detail="An error occurred while saving the image to the server.")  
 
 @router.patch('/npc/{npc_id}')
 async def update_npc(npc_id: int, npc: NpcUpdate):
