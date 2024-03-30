@@ -8,7 +8,6 @@ interface npc_data {
 }
 
 const npcs = ref<Array<npc_data>>([])
-const api_url : string = 'http://localhost:8000/'
 const toast = useToast()
 
 const { data } = await useFetch<npc_data>('http://localhost:8000/get_npcs/', {
