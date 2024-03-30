@@ -16,4 +16,5 @@ class NpcCreate(SQLModel):
     
 class NpcUpdate(SQLModel):
     name: str | None
+    profile_picture_url: str | None
     description: str | None
