@@ -121,7 +121,7 @@ onBeforeMount(async () => {
         const npc = await $fetch<Npc>('http://localhost:8000/get_npc/', {
             method: 'POST',
             body: {
-                id: 1
+                id: props.npc_id
             }
         })
         imageUrl.value = 'http://localhost:8000/' + npc.profile_picture_url
