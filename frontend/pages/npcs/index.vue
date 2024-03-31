@@ -94,11 +94,11 @@ async function sendNpc(npc_id: number) {
             </UButton>
         </NuxtLink>
     </div>
-    <div class="px-5 mt-5 grid lg:grid-cols-3 gap-3">
+    <div class="px-5 mt-5 grid lg:grid-cols-3 gap-3 pb-5">
         <UCard v-for="npc in npcs" class="">
-            <div class="flex justify-center">
+            <div class="flex justify-center h-64">
                 <NuxtImg :src="'http://localhost:8000/' + npc.profile_picture_url"
-                    class="w-64"
+                    class="w-64 object-contain"
                 />
             </div>
             <template #footer>
