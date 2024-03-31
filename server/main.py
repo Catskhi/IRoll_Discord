@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from routes import messages, voice_routes, image_routes, configuration, npc_routes
 from bot import client
@@ -36,4 +36,18 @@ def root():
 
 @app.get('/start_bot')
 async def start_bot():
-    await client.start_bot()
+    try:
+        if await client.get_bot_status() == False:
+            await client.start_bot()
+    except Exception as erro:
+        raise HTTPException(status_code=400, detail="The bot token is invalid or is not configured.")
+
+@app.get('/get_bot_status/')
+async def get_bot_status():
+    try:
+        status = await client.get_bot_status()
+        return {
+            'status': status
+        }
+    except Exception as error:
+        print(error)
