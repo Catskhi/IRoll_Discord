@@ -9,6 +9,8 @@ interface npc_data {
 
 const npcs = ref<Array<npc_data>>([])
 const toast = useToast()
+const isModalOpen = ref<boolean>(false)
+const npcToDeleteId = ref<number | undefined>(undefined)
 
 const { data } = await useFetch<npc_data>('http://localhost:8000/get_npcs/', {
     server: false,
@@ -27,9 +29,46 @@ function copyDescription(description: string) {
     })
 }
 
+function openDeleteModal(npc_id: number) {
+    npcToDeleteId.value = npc_id
+    isModalOpen.value = true
+}
+
+async function deleteNpc(npc_id: number) {
+    if (isNaN(npc_id)) {
+        throw new Error('The NPC ID must be a number')
+    }
+    await $fetch('http://localhost:8000/npc/' + npc_id, {
+        method: 'DELETE',
+        onResponse({response}) {
+            if (response.ok) {
+                npcs.value = npcs.value.filter(npc => npc.id !== npc_id)
+                toast.add({title: 'Successfully deleted the npc', color: 'green'})
+            }
+        },
+        onRequestError({response}) {
+            console.log(response)
+            toast.add({title: "Failed deleting the NPC", color: 'red'})
+        }
+    }) 
+    npcToDeleteId.value = undefined
+    isModalOpen.value = false
+}
+
 </script>
 
 <template>
+    <div>
+        <UModal v-model="isModalOpen">
+            <div class="py-4 px-5">
+                <p>Confirm NPC deletion?</p>
+                <div class="flex justify-end space-x-3">
+                    <UButton class="px-5" color="green" @click="isModalOpen = false">No</UButton>
+                    <UButton class="px-5" color="red" @click="deleteNpc(npcToDeleteId as number)">Yes</UButton>
+                </div>
+            </div>
+        </UModal>
+    </div>
     <div class="mt-5 px-5 flex items-center justify-center">
         <NuxtLink to="/npcs/add">
             <UButton class="px-10 text-lg">
@@ -71,7 +110,10 @@ function copyDescription(description: string) {
                 <p class="dark:text-slate-300 dark max-h-36 overflow-scroll py-y px-3 text-justify mt-3 h-36">
                     {{ npc.description }}
                 </p>
-                <div class="mt-3 pb-3 flex items-center justify-end">
+                <div class="mt-3 pb-3 flex items-center justify-end space-x-5">
+                    <UButton class="text-md" color="red" @click="openDeleteModal(npc.id)">
+                        Delete NPC <Icon name="ph:trash" class="text-xl" />
+                    </UButton>
                     <UButton class="text-md">
                         Send NPC <Icon name="material-symbols:send" class="text-xl" />
                     </UButton>
