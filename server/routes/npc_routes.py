@@ -71,6 +71,8 @@ async def save_npc_image(new_image: Annotated[UploadFile, File()], old_image_url
 
 @router.patch('/npc/{npc_id}', response_model=NpcRead)
 async def update_npc(npc_id: int, npc: NpcUpdate):
+    if npc.profile_picture_url == '':
+        raise HTTPException(status_code=400, detail="The profile picture URL can't be an empty string.")
     with Session(irollDatabase.engine) as session:
         db_npc = session.get(Npc, npc_id)
         if not db_npc:
@@ -90,6 +92,18 @@ async def create_npc(npc: NpcCreate):
         session.commit()
         session.refresh(db_npc)
         return db_npc
+
+@router.delete('/npc/{npc_id}')
+async def delete_npc(npc_id: int):
+    with Session(irollDatabase.engine) as session:
+        npc = session.get(Npc, npc_id)
+        if not npc:
+            raise HTTPException(status_code=404, detail="NPC not found.")
+        session.delete(npc)
+        session.commit()
+        return {
+            "msg": "Npc deleted successfully."
+        }
 
 @router.get('/get_npcs/')
 async def get_npcs():
