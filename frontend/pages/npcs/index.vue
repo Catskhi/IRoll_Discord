@@ -55,6 +55,24 @@ async function deleteNpc(npc_id: number) {
     isModalOpen.value = false
 }
 
+async function sendNpc(npc_id: number) {
+    if (isNaN(npc_id)) {
+        throw new Error('The NPC ID must be a number.')
+    }
+    await $fetch('http://localhost:8000/send_npc/' + npc_id, {
+        method: 'POST',
+        onResponse({response}) {
+            if (response.ok) {
+                toast.add({title: 'NPC sent', color: 'green'})
+            }
+        },
+        onResponseError({response}) {
+            console.log(response)
+            toast.add({title: 'An error occurred when sending the NPC.', color: 'red'})
+        }
+    })
+}
+
 </script>
 
 <template>
@@ -114,7 +132,7 @@ async function deleteNpc(npc_id: number) {
                     <UButton class="text-md" color="red" @click="openDeleteModal(npc.id)">
                         Delete NPC <Icon name="ph:trash" class="text-xl" />
                     </UButton>
-                    <UButton class="text-md">
+                    <UButton class="text-md" @click="sendNpc(npc.id)">
                         Send NPC <Icon name="material-symbols:send" class="text-xl" />
                     </UButton>
                 </div>
