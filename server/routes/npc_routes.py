@@ -21,34 +21,20 @@ def create_npc(name: str, description: str, image_url: str):
     session.add(npc)
     session.commit()
 
-
-@router.post('/send_npc/')
-async def send_npc(
-    name: Annotated[str, Form()],
-    description: Annotated[str, Form()],
-    channel_id: Annotated[int, Form()],
-    file: Annotated[UploadFile, File()]
-):
-    with open(f'images/{file.filename}', 'wb') as f:
-        f.write(await file.read())
-
-    message = f"""
+@router.post('send_npc/{npc_id}')
+async def send_npc(npc_id: int):
+    with Session(irollDatabase.engine) as session:
+        npc = session.get(Npc, npc_id)
+        if not npc:
+            raise HTTPException(status_code=400, detail="NPC not found.")
+        message = f"""
         **{name}**
-{description}
-    """
-
-    try:
-        create_npc(name, description, f'images/{file.filename}')
-    except Exception as error:
-        print(error)
-
-    await bot_images.send_image_with_text(message, f'images/{file.filename}', channel_id)
+{description}        
+"""
+    await bot_images.send_image_with_text(message, f'images/{npc.profile_picture_url}')
 
     return {
-        "name": name,
-        "description": description,
-        "channel_id": channel_id,
-        "file": file.filename
+        msg: 'Successfully sent npc to npcs channel'
     }
 
 @router.post('/save_npc_image/')
