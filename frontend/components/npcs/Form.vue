@@ -47,27 +47,6 @@ const handleFileInput = (event: Event) => {
     }
 }
 
-const sendNpcToServer = async () => {
-    loadingUpload.value = true
-    const formData = new FormData()
-    formData.append('name', npcName.value)
-    formData.append('description', npcDescription.value)
-    formData.append('channel_id', npc_channel.value)
-    formData.append('file', imageFile.value as Blob)
-    await $fetch('http://localhost:8000/send_npc/', {
-        method: 'POST',
-        body: formData
-    })
-    .catch((error) => {
-        console.log(error)
-        toast.add({
-            title: 'An error occurred while saving the NPC.',
-            color: 'red'
-        })
-    })
-    loadingUpload.value = false
-}
-
 const saveNpc = async () => {
     loadingUpload.value = true
     var newImageUrl: string = ''
