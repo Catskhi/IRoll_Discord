@@ -53,7 +53,7 @@ async def save_npc_image(new_image: Annotated[UploadFile, File()], old_image_url
         with open(f'app/images/npcs/{image_id}.{file_type}', 'wb') as file:
             file.write(await new_image.read())
         return {
-            'image_url': f'images/npcs/{image_id}.{file_type}'
+            'image_url': f'app/images/npcs/{image_id}.{file_type}'
         }
     except Exception as error:
         print(error)     
