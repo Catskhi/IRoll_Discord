@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .routes import messages, voice_routes, image_routes, configuration, npc_routes
 from .bot import client
+from .static import verify_static_folders
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ app.add_middleware(
 )
 
 #static files
+verify_static_folders()
 app.mount('/images', StaticFiles(directory='app/images'), name='images')
 
 #app routes
@@ -31,7 +33,7 @@ app.include_router(npc_routes.router)
 @app.get("/")
 def root():
     return {
-        "message": "Hello World"
+        "message": "Server started successfully."
     }
 
 @app.get('/start_bot')
