@@ -45,12 +45,12 @@ async def send_npc(npc_id: int):
 async def save_npc_image(new_image: Annotated[UploadFile, File()], old_image_url: Optional[str] = Form(None)):
     image_id = uuid.uuid4()
     file_type = new_image.filename.split('.')[-1]
-    if not os.path.exists('images/npcs/'):
-        os.mkdir('images/npcs/')
+    if not os.path.exists('app/images/npcs/'):
+        os.mkdir('app/images/npcs/')
     try:
         if old_image_url:
             os.remove(f'{old_image_url}')
-        with open(f'images/npcs/{image_id}.{file_type}', 'wb') as file:
+        with open(f'app/images/npcs/{image_id}.{file_type}', 'wb') as file:
             file.write(await new_image.read())
         return {
             'image_url': f'images/npcs/{image_id}.{file_type}'

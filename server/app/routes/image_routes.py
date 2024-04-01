@@ -13,10 +13,10 @@ async def send_image(
     file: Annotated[UploadFile, File()]
 ):
 
-    with open(f'images/{file.filename}', 'wb') as f:
+    with open(f'app/images/{file.filename}', 'wb') as f:
         f.write(await file.read())
 
-    await bot_images.send_image(f'images/{file.filename}', channel_id)
+    await bot_images.send_image(f'app/images/{file.filename}', channel_id)
 
     return {
         "channel_id": channel_id,
