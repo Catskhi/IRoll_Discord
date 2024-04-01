@@ -78,7 +78,7 @@ onBeforeMount(async () => {
 
 <template>
     <div class="px-5 mt-5">
-        <h1 class="text-xl font-bold">Bot Settings, {{ botStatus }}</h1>
+        <h1 class="text-xl font-bold">Bot Settings</h1>
         <div class="mt-5">
             <div>
                 <UChip :color="botStatus ? 'green' : 'red'" size="xl"
