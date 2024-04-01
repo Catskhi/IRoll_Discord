@@ -21,7 +21,7 @@ app.add_middleware(
 
 #static files
 verify_static_folders()
-app.mount('/images', StaticFiles(directory='app/images'), name='images')
+app.mount('/app/images', StaticFiles(directory='app/images'), name='images')
 
 #app routes
 app.include_router(messages.router)
