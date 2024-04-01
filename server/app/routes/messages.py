@@ -1,7 +1,7 @@
 from fastapi import Request, APIRouter
 from pydantic import BaseModel
-from bot.bot_messages import Bot_Messages
-from bot import client
+from app.bot.bot_messages import Bot_Messages
+from app.bot import client
 import random
 
 router = APIRouter()

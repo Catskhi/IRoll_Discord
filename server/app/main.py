@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from routes import messages, voice_routes, image_routes, configuration, npc_routes
-from bot import client
 from fastapi.middleware.cors import CORSMiddleware
+from .routes import messages, voice_routes, image_routes, configuration, npc_routes
+from .bot import client
 
 app = FastAPI()
 

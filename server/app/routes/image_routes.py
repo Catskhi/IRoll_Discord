@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Form, File, UploadFile
 from pydantic import BaseModel
-from bot.images import Bot_Images
-from bot import client
+from app.bot.images import Bot_Images
+from app.bot import client
 from typing import Annotated
 
 router = APIRouter()

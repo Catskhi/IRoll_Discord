@@ -1,7 +1,7 @@
 import discord
 from discord.ext.commands import Bot
 from fastapi import UploadFile
-from settings import settings
+from app.settings import settings
 
 class Bot_Images():
     def __init__(self, bot: Bot) -> None:

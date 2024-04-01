@@ -2,7 +2,7 @@ import os
 import json
 from fastapi import APIRouter, Path
 from pydantic import BaseModel
-from settings import settings
+from app.settings import settings
 
 class Set_Bot_Configs(BaseModel):
     bot_token: str | None = None

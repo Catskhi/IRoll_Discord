@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 import asyncio
-from settings import settings
+from app.settings import settings
 
 class Bot_Client:
     def __init__(self):

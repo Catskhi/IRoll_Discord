@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Form, File, UploadFile, HTTPException
-from bot.images import Bot_Images
-from bot import client
-from typing import Annotated, Optional
-from database.models import Npc, NpcUpdate, NpcCreate, NpcRead
-from database import irollDatabase
-from sqlmodel import Session, select
-from pydantic import BaseModel
 import os
 import uuid
+from typing import Annotated, Optional
+from sqlmodel import Session, select
+from pydantic import BaseModel
+from fastapi import APIRouter, Form, File, UploadFile, HTTPException
+from app.bot.images import Bot_Images
+from app.bot import client
+from app.database import irollDatabase
+from app.database.models import Npc, NpcUpdate, NpcCreate, NpcRead
 
 router = APIRouter()
 bot_images = Bot_Images(client.get_bot_client())

@@ -1,6 +1,6 @@
 import os
 from sqlmodel import SQLModel, create_engine
-from database import models
+from app.database import models
 
 class IrollDatabase():
     def __init__(self):
