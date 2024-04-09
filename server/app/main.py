@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import messages, voice_routes, image_routes, configuration, npc_routes
+from .routes import messages, voice_routes, image_routes, configuration, npc_routes, audio_routes
 from .bot import client
 from .static import verify_static_folders
+from .bot.audio import bot_audio
 
 app = FastAPI()
 
@@ -27,6 +28,7 @@ app.include_router(voice_routes.router)
 app.include_router(image_routes.router)
 app.include_router(configuration.router)
 app.include_router(npc_routes.router)
+app.include_router(audio_routes.router)
 
 @app.get("/")
 def root():
