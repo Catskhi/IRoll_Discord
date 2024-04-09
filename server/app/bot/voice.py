@@ -16,4 +16,3 @@ class Bot_Voice():
     async def join_voice_channel(self, channel_id: int):
         voice_channel = self.bot.get_channel(channel_id)
         voice_client = await voice_channel.connect()
-        voice_client.play(discord.FFmpegPCMAudio('https://www.youtube.com/watch?v=Y4KX-owEk98'))
