@@ -64,9 +64,7 @@ const startBot = async () => {
             console.log(response)
         }
     })
-    setTimeout(async () => {
-        await getBotStatus()
-    }, 5000)
+    await getBotStatus()
     loadingStartBot.value = false
 }
 
