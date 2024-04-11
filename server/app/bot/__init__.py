@@ -26,8 +26,11 @@ class Bot_Client:
             raise Exception("The bot token is empty.")
         try:
             asyncio.create_task(self.client.start(bot_token))
+            await asyncio.sleep(5)
+            return self.client.is_ready()
         except Exception as error:
             print('An error occurred while trying to start the bot.')
+            print(error)
 
     async def get_bot_status(self) -> bool:
         return self.client.is_ready()
