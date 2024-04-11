@@ -67,7 +67,9 @@ const goToMainPage = async () => {
                 </p>
             </span>
             <UDivider />
-            <UVerticalNavigation :links="links" class="mt-5" :ui="{ size: 'text-base' }">
+            <UVerticalNavigation :links="links" class="mt-5" :ui="{ size: 'text-base' }"
+                @click="isSlideOpen = false"
+            >
                 <template #icon="{link}">
                     <Icon :name="link.icon" class="text-base" />
                 </template>
