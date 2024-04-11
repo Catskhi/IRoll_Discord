@@ -5,6 +5,7 @@ from .routes import messages, voice_routes, image_routes, configuration, npc_rou
 from .bot import client
 from .static import verify_static_folders
 from .bot.audio import bot_audio
+import asyncio
 
 app = FastAPI()
 
@@ -38,11 +39,20 @@ def root():
 
 @app.get('/start_bot')
 async def start_bot():
-    try:
-        if await client.get_bot_status() == False:
-            await client.start_bot()
-    except Exception as erro:
-        raise HTTPException(status_code=400, detail="The bot token is invalid or is not configured.")
+    status = await client.get_bot_status()
+    if status == False:
+        try:
+            if await client.get_bot_status() == False:
+                status = await client.start_bot()
+                return {
+                    'status': status
+                }
+        except Exception as erro:
+            raise HTTPException(status_code=400, detail="The bot token is invalid or is not configured.")
+    else:
+        return {
+            'msg': 'Bot is already started.',
+        }
 
 @app.get('/get_bot_status/')
 async def get_bot_status():
