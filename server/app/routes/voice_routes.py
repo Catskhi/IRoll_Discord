@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Form
 from pydantic import BaseModel
+from typing import Annotated
 from app.bot.voice import Bot_Voice
 from app.bot import client
 from app.bot.audio import bot_audio
@@ -15,6 +16,9 @@ class Play_Audio(BaseModel):
     channel_id: int
     file_path: str
 
+class StreamAudio(BaseModel):
+    url: str
+
 @router.post('/join_channel/')
 async def join_voice_channel(params: Join_Channel):
     channel_id = params.channel_id
@@ -26,4 +30,8 @@ async def play_audio(play_audio: Play_Audio):
     voice_client = await bot_voice.join_voice_channel(channel_id)
     audio_source = discord.FFmpegPCMAudio(play_audio.file_path)
     voice_client.play(audio_source)
+
+@router.post('/stream_audio')
+async def stream_audio(params: StreamAudio):
+    await bot_voice.stream(url=params.url)
     
