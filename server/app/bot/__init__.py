@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 import asyncio
 from app.settings import settings
+from app.bot.voice import Bot_Voice
 
 class Bot_Client:
     def __init__(self):
@@ -25,6 +26,7 @@ class Bot_Client:
         if bot_token == '':
             raise Exception("The bot token is empty.")
         try:
+            await self.client.add_cog(Bot_Voice(self.client))
             asyncio.create_task(self.client.start(bot_token))
             await asyncio.sleep(5)
             return self.client.is_ready()
