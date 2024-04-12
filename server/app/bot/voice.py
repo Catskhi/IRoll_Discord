@@ -59,10 +59,11 @@ class Bot_Voice(commands.Cog):
                 await ctx.voice_client.move_to(channel)
             else:
                 self.voice_client = await channel.connect()
+            await ctx.send("Connected to voice channel")
         else:
-            await ctx.send("Not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel")
 
-    @commands.command(name="stream")
+    @commands.command(name="play")
     async def stream_command(self, ctx, url):
         try:
             await self.stream(url=url)
@@ -74,10 +75,25 @@ class Bot_Voice(commands.Cog):
     async def pause_command(self, ctx):
         await self.pause(ctx=ctx)
 
+    @commands.command(name="resume")
+    async def resume_command(self, ctx):
+        await self.resume(ctx=ctx)
+        
+    @commands.command()
+    async def leave(self, ctx):
+        if self.voice_client:
+            await self.voice_client.disconnect()
+        await ctx.send("Disconnected from voice channel")
+
+    @commands.command(name="volume")
+    async def change_volume_command(self, ctx, volume: int):
+        await self.volume(volume, ctx)
+
     async def join_voice_channel(self, channel_id: int):
         voice_channel = self.bot.get_channel(channel_id)
         voice_client = await voice_channel.connect()
         return voice_client
+
 
     async def stream(self, *, url):
         command_channel = self.bot.get_channel(int(settings.get_settings_data()['music_commands_channel']))
@@ -104,14 +120,43 @@ class Bot_Voice(commands.Cog):
             raise Exception("The voice channel or the command channel are missing on configuration file.")
 
     async def pause(self, ctx=None):
-        if self.voice_client:
-            if self.voice_client.is_playing():
-                await self.voice_client.pause()
+        try:
+            if self.voice_client:
+                if self.voice_client.is_playing():
+                    self.voice_client.pause()
+                else:
+                    raise Exception("There is no sound playing right now")
             else:
-                print("There is no sound playing right now")
-                if ctx: 
-                    await ctx.send("There is no sound playing right now")
-        else:
-            print("Not connected to a voice channel")
-            if ctx: 
-                await ctx.send("Not connected to a voice channel")
+                raise Exception("Not connected to a voice channel")
+        except Exception as error:
+            print(error)
+            if ctx:
+                await ctx.send(error)
+
+    async def resume(self, ctx=None):
+        try:
+            if self.voice_client:
+                if self.voice_client.is_paused():
+                    self.voice_client.resume()
+                else:
+                    raise Exception("There is no sound currently paused")
+            else:
+                raise Exception("Not connected to a voice channel")
+        except Exception as error:
+            print(error)
+            if ctx:
+                await ctx.send(error)
+
+    async def volume(self, volume: int, ctx = None):
+        try:
+            if self.voice_client is None:
+                raise Exception("Not connected to a voice channel")
+    
+            self.voice_client.source.volume = volume / 100
+            if ctx:
+                await ctx.send(f"Changed volume to {volume}%")
+        except Exception as error:
+            if ctx:
+                await ctx.send(error)
+
+    
