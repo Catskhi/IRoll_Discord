@@ -48,17 +48,31 @@ class YTDLSource(discord.PCMVolumeTransformer):
 class Bot_Voice(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
+        self.voice_client = None
 
     @commands.command()
     async def join(self, ctx):
         if ctx.author.voice:
             channel = ctx.author.voice.channel
             if ctx.voice_client:
+                self.voice_client = ctx.voice_client
                 await ctx.voice_client.move_to(channel)
             else:
-                await channel.connect()
+                self.voice_client = await channel.connect()
         else:
-            ctx.send("Not connected to a voice channel.")
+            await ctx.send("Not connected to a voice channel.")
+
+    @commands.command(name="stream")
+    async def stream_command(self, ctx, url):
+        try:
+            await self.stream(url=url)
+        except Exception as error:
+            print(f"Error: {error}")
+            await ctx.send("Server error or invalid url")
+
+    @commands.command(name="pause")
+    async def pause_command(self, ctx):
+        await self.pause(ctx=ctx)
 
     async def join_voice_channel(self, channel_id: int):
         voice_channel = self.bot.get_channel(channel_id)
@@ -70,22 +84,34 @@ class Bot_Voice(commands.Cog):
         voice_channel = self.bot.get_channel(int(settings.get_settings_data()['voice_channel']))
 
         if voice_channel and command_channel:
-            voice_client = None
             if self.bot.voice_clients:
-                voice_client = self.bot.voice_clients[0]
+                self.voice_client = self.bot.voice_clients[0]
                 print("The bot is already connected to a voice channel.")
             else:
-                voice_client = await voice_channel.connect()
+                self.voice_client = await voice_channel.connect()
                 
-            if voice_client:
+            if self.voice_client:
                 async with command_channel.typing():
-                    if voice_client.is_playing():
-                        voice_client.stop()
+                    if self.voice_client.is_playing():
+                        self.voice_client.stop()
                     player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-                    voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
+                    self.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
             else:
                 raise Exception("There is no voice client.")
         
             await command_channel.send(f'Now playing: {player.title}')
         else:
             raise Exception("The voice channel or the command channel are missing on configuration file.")
+
+    async def pause(self, ctx=None):
+        if self.voice_client:
+            if self.voice_client.is_playing():
+                await self.voice_client.pause()
+            else:
+                print("There is no sound playing right now")
+                if ctx: 
+                    await ctx.send("There is no sound playing right now")
+        else:
+            print("Not connected to a voice channel")
+            if ctx: 
+                await ctx.send("Not connected to a voice channel")
