@@ -2,6 +2,8 @@
 
 const token = ref<string>()
 const npc_channel = ref<string>()
+const voice_channel = ref<string>()
+const music_commands_channel = ref<string>()
 const loadingSaveConfigs = ref<boolean>(false)
 const botStatus = ref<boolean>(false)
 const loadingStartBot = ref<boolean>(false)
@@ -17,6 +19,8 @@ const { data } = await useFetch('http://localhost:8000/get_bot_configs/', {
     onResponse({response}) {
         token.value = response._data.bot_token
         npc_channel.value = response._data.npc_channel
+        voice_channel.value = response._data.voice_channel
+        music_commands_channel.value = response._data.music_commands_channel
     }
 })
 
@@ -26,7 +30,9 @@ const saveConfigs = async () => {
         method: 'POST',
         body: {
             bot_token: token.value,
-            npc_channel: npc_channel.value
+            npc_channel: npc_channel.value,
+            voice_channel: voice_channel.value,
+            music_commands_channel: music_commands_channel.value
         }
     })
     .then(() => {
@@ -72,6 +78,12 @@ onBeforeMount(async () => {
     await getBotStatus()
 })
 
+onMounted(async () => {
+    let verifyStatus = setInterval(async () => {
+        await getBotStatus()
+    }, 5000)
+})
+
 </script>
 
 <template>
@@ -101,6 +113,14 @@ onBeforeMount(async () => {
                 <label class="text-lg mt-3">NPCs Channel</label>
                 <div class="flex space-x-5 mt-1">
                     <FormInput class="w-3/4" placeholder="The NPC channel of your game..." :max-length="500" v-model="npc_channel" />
+                </div>
+                <label class="text-lg mt-3">Voice Channel</label>
+                <div class="flex space-x-5 mt-1">
+                    <FormInput class="w-3/4" placeholder="The NPC channel of your game..." :max-length="500" v-model="voice_channel" />
+                </div>
+                <label class="text-lg mt-3">Music Commands Channel</label>
+                <div class="flex space-x-5 mt-1">
+                    <FormInput class="w-3/4" placeholder="The NPC channel of your game..." :max-length="500" v-model="music_commands_channel" />
                 </div>
                 <div class="w-3/4 mt-5">
                     <UButton color="primary" variant="solid"
