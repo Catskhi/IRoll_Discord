@@ -7,6 +7,8 @@ from app.settings import settings
 class Set_Bot_Configs(BaseModel):
     bot_token: str | None = None
     npc_channel: str | None = None
+    voice_channel: str | None = None
+    music_commands_channel: str | None = None
 
 router = APIRouter()
 
