@@ -13,6 +13,10 @@ const links = [{
     label: 'NPCs',
     to: '/npcs/',
     icon: 'material-symbols:person'
+}, {
+    label: 'Music',
+    to: '/music/',
+    icon: 'mdi:music'
 }]
 
 const colorMode = useColorMode()
@@ -35,7 +39,7 @@ const goToMainPage = async () => {
     <nav class="grid grid-cols-2">
         <div class="h-16 flex items-center pl-5 select-none"
         >
-            <div class="rounded-full p-1 hover:bg-zinc-300 dark:hover:bg-zinc-600 bg-opacity-45 cursor-pointer mr-5"
+            <div class="rounded-full p-1 hover:bg-zinc-300 dark:hover:bg-zinc-600 bg-opacity-45 cursor-pointer mr-5 transition-all duration-150"
                 @click="isSlideOpen = true"
             >
                 <Icon name="ic:round-menu" class="text-[30px]" />
@@ -71,7 +75,7 @@ const goToMainPage = async () => {
                 @click="isSlideOpen = false"
             >
                 <template #icon="{link}">
-                    <Icon :name="link.icon" class="text-base" />
+                    <Icon :name="link.icon" class="text-lg" />
                 </template>
             </UVerticalNavigation>
         </USlideover>
