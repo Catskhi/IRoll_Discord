@@ -16,7 +16,7 @@ const links = [{
 }, {
     label: 'Music',
     to: '/music/',
-    icon: 'mdi:music'
+    icon: 'tabler:music'
 }]
 
 const colorMode = useColorMode()
