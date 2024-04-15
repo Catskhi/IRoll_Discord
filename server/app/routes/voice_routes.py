@@ -27,9 +27,7 @@ async def join_voice_channel(params: Join_Channel):
 @router.post('/play_audio')
 async def play_audio(play_audio: Play_Audio):
     channel_id = play_audio.channel_id
-    voice_client = await bot_voice.join_voice_channel(channel_id)
-    audio_source = discord.FFmpegPCMAudio(play_audio.file_path)
-    voice_client.play(audio_source)
+    await bot_voice.play_local_file(channel_id, play_audio.file_path)
 
 @router.post('/stream_audio')
 async def stream_audio(params: StreamAudio):
