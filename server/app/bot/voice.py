@@ -4,6 +4,7 @@ from discord.ext import commands
 import youtube_dl
 import asyncio
 from app.settings import settings
+import os
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -94,6 +95,28 @@ class Bot_Voice(commands.Cog):
         voice_client = await voice_channel.connect()
         return voice_client
 
+    async def play_local_file(self, channel_id: int, file_path: str):
+        command_channel = self.bot.get_channel(int(settings.get_settings_data()['music_commands_channel']))
+        voice_channel = self.bot.get_channel(channel_id)
+        
+        if voice_channel and command_channel:
+            if self.bot.voice_clients:
+                self.voice_client = self.bot.voice_clients[0]
+                print("The bot is already connected to a voice channel.")
+            else:
+                self.voice_client = await voice_channel.connect()
+            
+            if self.voice_client:
+                async with command_channel.typing():
+                    if self.voice_client.is_playing():
+                        self.voice_client.stop()
+                    audio_source = discord.FFmpegPCMAudio(file_path)
+                    self.voice_client.play(audio_source)
+            else:
+                raise Exception("There is no voice client.")
+            await command_channel.send(f"Now playing: {os.path.basename(file_path)}")
+        else:
+            raise Exception("The voice channel or the command channel are missing on configuration file.")
 
     async def stream(self, *, url):
         command_channel = self.bot.get_channel(int(settings.get_settings_data()['music_commands_channel']))
