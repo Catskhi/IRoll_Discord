@@ -13,7 +13,7 @@ const goToSettingsPage = async () => {
                 <Icon class="text-4xl" name="line-md:cog-filled-loop" />
             </div>
             <template #footer>
-                <div class="flex justify-center items-center">
+                <div class="flex justify-center items-center select-none">
                     <NuxtLink to="/settings" class="text-primary text-lg hover:text-yellow-600 transition-all duration-300">
                         Settings
                     </NuxtLink>
@@ -25,9 +25,21 @@ const goToSettingsPage = async () => {
                 <Icon class="text-4xl" name="material-symbols:person" />
             </div>
             <template #footer>                
-                <div class="flex justify-center items-center">
+                <div class="flex justify-center items-center select-none">
                     <NuxtLink to="/npcs" class="text-primary text-lg hover:text-yellow-600 transition-all duration-300">
                         NPCs
+                    </NuxtLink>
+                </div>
+            </template>
+        </UCard>
+        <UCard>
+            <div class="flex items-center justify-center">
+                <Icon class="text-4xl" name="tabler:music" />
+            </div>
+            <template #footer>                
+                <div class="flex justify-center items-center select-none">
+                    <NuxtLink to="/music" class="text-primary text-lg hover:text-yellow-600 transition-all duration-300">
+                        Music
                     </NuxtLink>
                 </div>
             </template>
