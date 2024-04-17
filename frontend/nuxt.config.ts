@@ -9,5 +9,6 @@ export default defineNuxtConfig({
     'nuxt-icon',
     '@nuxt/ui',
     '@nuxt/image',
+    '@pinia/nuxt',
   ]
 })
