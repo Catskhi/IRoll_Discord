@@ -36,8 +36,8 @@ const goToMainPage = async () => {
 </script>
 
 <template>
-    <nav class="grid grid-cols-2">
-        <div class="h-16 flex items-center pl-5 select-none"
+    <nav class="grid grid-cols-3">
+        <div class="h-16 flex items-center pl-5 select-none col-span-2"
         >
             <div class="rounded-full p-1 hover:bg-zinc-300 dark:hover:bg-zinc-600 bg-opacity-45 cursor-pointer mr-5 transition-all duration-150"
                 @click="isSlideOpen = true"
