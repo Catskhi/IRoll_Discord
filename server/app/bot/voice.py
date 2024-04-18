@@ -115,6 +115,9 @@ class Bot_Voice(commands.Cog):
             else:
                 raise Exception("There is no voice client.")
             await command_channel.send(f"Now playing: {os.path.basename(file_path)}")
+            while self.voice_client.is_playing():
+                continue
+            await command_channel.send("Finished audio.")
         else:
             raise Exception("The voice channel or the command channel are missing on configuration file.")
 
