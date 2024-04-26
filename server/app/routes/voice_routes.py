@@ -21,6 +21,9 @@ class StreamAudio(BaseModel):
     channel_id: int | None = None
     url: str
 
+class Volume(BaseModel):
+    new_volume: int
+
 @router.post('/join_channel/')
 async def join_voice_channel(params: Join_Channel):
     channel_id = params.channel_id
@@ -64,6 +67,17 @@ async def toggle_paused():
         }
     else:
         raise HTTPException(status_code=500, detail="There are no current voice clients.")
+
+@router.post('/volume')
+async def volume(volume: Volume):
+    try:
+        await bot_voice.volume(volume=volume.new_volume)
+        return {
+            "msg": f"Volume set to {volume.new_volume}"
+        }
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"An error occurred while setting the volume: {error}")
+
 
 @router.websocket('/voice_ws/{client_id}')
 async def voice_websocket(websocket: WebSocket, client_id: str):
