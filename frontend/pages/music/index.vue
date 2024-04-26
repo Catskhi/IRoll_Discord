@@ -51,11 +51,6 @@ watch([localAudioSearch, page], ([newSearch, newPage]) => {
 })
 
 const playLocalAudio = async (audio_url: string) => {
-    const formData = new FormData()
-    formData.append('file_path', audio_url)
-    if (channelId.value.length > 10) {
-        formData.append('channel_id', channelId.value)
-    }
     await $fetch('http://localhost:8000/play_audio', {
         method: 'POST',
         body: {
@@ -70,7 +65,20 @@ const playLocalAudio = async (audio_url: string) => {
 }
 
 const playAudioFromUrl = async () => {
-    
+    await $fetch('http://localhost:8000/stream_audio', {
+        method: 'POST',
+        body: {
+            url: songUrl.value
+        },
+        onResponse({response}) {
+            if (response.ok) {
+                console.log(response._data)
+            }
+        },
+        onResponseError({response}) {
+            console.log(response)
+        }
+    })
 }
 
 
@@ -80,17 +88,13 @@ const playAudioFromUrl = async () => {
     <div class="px-5 pt-5 pb-40 lg:pb-32">
         <h1 class="text-xl font-bold">Music</h1>
         <div class="space-y-3 mt-3 lg:w-1/2" >
-            <div class="flex items-center" >
-                <label>Channel ID: </label>
-                <UInput v-model="channelId" class="ml-3 grow" placeholder="The ID of the channel to join" />
-            </div>
-            <UDivider />
             <p>Play From Youtube</p>
             <div class="flex items-center">
                 <label>Song URL: </label>
                 <UInput v-model="songUrl" class="ml-3 grow" placeholder="The ID of the channel to join" />
                 <UButton :ui="{ rounded: 'rounded-full' }" square class="ml-3" size="md"
                     :disabled="songUrl.length < 10"
+                    @click="playAudioFromUrl"
                 >
                     <Icon name="ph:play-fill" />
                 </UButton>
