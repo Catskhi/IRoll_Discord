@@ -8,7 +8,8 @@ interface local_audios {
 
 const page = ref<number>(1)
 const totalPages = ref<number>(0)
-const channel_id = ref<string>('')
+const channelId = ref<string>('')
+const songUrl = ref<string>('')
 const isMusicPlayerOpened = ref<boolean>(false)
 
 const toast = useToast()
@@ -50,6 +51,25 @@ watch([localAudioSearch, page], ([newSearch, newPage]) => {
 })
 
 const playLocalAudio = async (audio_url: string) => {
+    const formData = new FormData()
+    formData.append('file_path', audio_url)
+    if (channelId.value.length > 10) {
+        formData.append('channel_id', channelId.value)
+    }
+    await $fetch('http://localhost:8000/play_audio', {
+        method: 'POST',
+        body: {
+            file_path: audio_url
+        },
+        onResponse({response}) {
+            if (response.ok) {
+                console.log(response._data)
+            }
+        }
+    })
+}
+
+const playAudioFromUrl = async () => {
     
 }
 
@@ -57,11 +77,24 @@ const playLocalAudio = async (audio_url: string) => {
 </script>
 
 <template>
-    <div class="px-5 pt-5">
+    <div class="px-5 pt-5 pb-40 lg:pb-32">
         <h1 class="text-xl font-bold">Music</h1>
-        <div class="mt-5 flex items-center w-1/2">
-            <label>Channel ID: </label>
-            <UInput class="ml-3 w-64" placeholder="The ID of the channel to join" />
+        <div class="space-y-3 mt-3 lg:w-1/2" >
+            <div class="flex items-center" >
+                <label>Channel ID: </label>
+                <UInput v-model="channelId" class="ml-3 grow" placeholder="The ID of the channel to join" />
+            </div>
+            <UDivider />
+            <p>Play From Youtube</p>
+            <div class="flex items-center">
+                <label>Song URL: </label>
+                <UInput v-model="songUrl" class="ml-3 grow" placeholder="The ID of the channel to join" />
+                <UButton :ui="{ rounded: 'rounded-full' }" square class="ml-3" size="md"
+                    :disabled="songUrl.length < 10"
+                >
+                    <Icon name="ph:play-fill" />
+                </UButton>
+            </div>
         </div>
         <div class="py-2 mt-3 rounded">
             <div class="flex flex-col bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800">
@@ -82,7 +115,9 @@ const playLocalAudio = async (audio_url: string) => {
                     py-3 px-3 grid grid-cols-2
                 ">
                     <div class="flex space-x-3">
-                        <UButton :ui="{ rounded: 'rounded-full' }" square>
+                        <UButton :ui="{ rounded: 'rounded-full' }" square
+                            @click="playLocalAudio(audio)"
+                        >
                             <Icon name="ph:play-fill" />
                         </UButton>
                         <div class="truncate">
