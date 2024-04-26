@@ -1,10 +1,11 @@
 import discord
 from discord.ext.commands import Bot
-from discord.ext import commands
+from discord.ext import commands, tasks
 import youtube_dl
 import asyncio
 from app.settings import settings
 import os
+from app.websockets import manager
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -50,6 +51,7 @@ class Bot_Voice(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
         self.voice_client = None
+        self.command_channel = None
 
     @commands.command()
     async def join(self, ctx):
@@ -75,10 +77,14 @@ class Bot_Voice(commands.Cog):
     @commands.command(name="pause")
     async def pause_command(self, ctx):
         await self.pause(ctx=ctx)
+        if manager:
+            await manager.broadcast_json({'is_playing': self.voice_client.is_playing()})
 
     @commands.command(name="resume")
     async def resume_command(self, ctx):
         await self.resume(ctx=ctx)
+        if manager:
+            await manager.broadcast_json({'is_playing': self.voice_client.is_playing()})
         
     @commands.command()
     async def leave(self, ctx):
@@ -94,56 +100,64 @@ class Bot_Voice(commands.Cog):
         voice_channel = self.bot.get_channel(channel_id)
         voice_client = await voice_channel.connect()
         return voice_client
-
-    async def play_local_file(self, channel_id: int, file_path: str):
-        command_channel = self.bot.get_channel(int(settings.get_settings_data()['music_commands_channel']))
-        voice_channel = self.bot.get_channel(channel_id)
         
-        if voice_channel and command_channel:
+    async def handle_join_play_channel(self, channel_id: int | None = None):
+        if channel_id is not None:
+            voice_channel = self.bot.get_channel(channel_id)
+        else:
+            voice_channel = self.bot.get_channel(int(settings.get_settings_data()['voice_channel']))
+        self.command_channel = self.bot.get_channel(int(settings.get_settings_data()['music_commands_channel']))
+        if voice_channel and self.command_channel:
             if self.bot.voice_clients:
                 self.voice_client = self.bot.voice_clients[0]
                 print("The bot is already connected to a voice channel.")
             else:
                 self.voice_client = await voice_channel.connect()
-            
+        else:
+            raise Exception("The voice channel or the command channel are missing on configuration file.")
+
+    async def play_local_file(self, file_path: str, channel_id: int | None = None):
+        try:
+            await self.handle_join_play_channel(channel_id=channel_id)
             if self.voice_client:
-                async with command_channel.typing():
+                async with self.command_channel.typing():
                     if self.voice_client.is_playing():
                         self.voice_client.stop()
                     audio_source = discord.FFmpegPCMAudio(file_path)
                     self.voice_client.play(audio_source)
             else:
                 raise Exception("There is no voice client.")
-            await command_channel.send(f"Now playing: {os.path.basename(file_path)}")
-            while self.voice_client.is_playing():
-                continue
-            await command_channel.send("Finished audio.")
-        else:
-            raise Exception("The voice channel or the command channel are missing on configuration file.")
+            await self.command_channel.send(f"Now playing: {os.path.basename(file_path)}")
+        except Exception as error:
+            print(f"An error occurred: {error}")
 
-    async def stream(self, *, url):
-        command_channel = self.bot.get_channel(int(settings.get_settings_data()['music_commands_channel']))
-        voice_channel = self.bot.get_channel(int(settings.get_settings_data()['voice_channel']))
-
-        if voice_channel and command_channel:
-            if self.bot.voice_clients:
-                self.voice_client = self.bot.voice_clients[0]
-                print("The bot is already connected to a voice channel.")
-            else:
-                self.voice_client = await voice_channel.connect()
-                
+    async def stream(self, *, url: str, channel_id: int | None = None):
+        try:
+            await self.handle_join_play_channel(channel_id)
             if self.voice_client:
-                async with command_channel.typing():
+                async with self.command_channel.typing():
                     if self.voice_client.is_playing():
                         self.voice_client.stop()
                     player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
                     self.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
             else:
                 raise Exception("There is no voice client.")
-        
             await command_channel.send(f'Now playing: {player.title}')
-        else:
-            raise Exception("The voice channel or the command channel are missing on configuration file.")
+        except Exception as error:
+            print(f"An error occurred: {error}")
+
+    async def toggle_paused(self, ctx=None):
+        try:
+            if self.voice_client:
+                if self.voice_client.is_playing():
+                    self.voice_client.pause()
+                elif self.voice_client.is_paused():
+                    self.voice_client.resume()
+            else:
+                raise Exception("There is no sound playing right now")
+        except:
+            if ctx:
+                await ctx.send(error)
 
     async def pause(self, ctx=None):
         try:
