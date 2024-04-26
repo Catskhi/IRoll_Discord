@@ -100,6 +100,9 @@ class Bot_Voice(commands.Cog):
         voice_channel = self.bot.get_channel(channel_id)
         voice_client = await voice_channel.connect()
         return voice_client
+
+    def ensure_voice_client(self):
+        self.voice_client = self.bot.voice_clients[0]
         
     async def handle_join_play_channel(self, channel_id: int | None = None):
         if channel_id is not None:
@@ -125,6 +128,8 @@ class Bot_Voice(commands.Cog):
                         self.voice_client.stop()
                     audio_source = discord.FFmpegPCMAudio(file_path)
                     self.voice_client.play(audio_source)
+                    if manager:
+                        await manager.broadcast_json({'is_playing': self.voice_client.is_playing()})
             else:
                 raise Exception("There is no voice client.")
             await self.command_channel.send(f"Now playing: {os.path.basename(file_path)}")
@@ -140,6 +145,8 @@ class Bot_Voice(commands.Cog):
                         self.voice_client.stop()
                     player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
                     self.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
+                    if manager:
+                        await manager.broadcast_json({'is_playing': self.voice_client.is_playing()})
             else:
                 raise Exception("There is no voice client.")
             await command_channel.send(f'Now playing: {player.title}')
@@ -148,6 +155,7 @@ class Bot_Voice(commands.Cog):
 
     async def toggle_paused(self, ctx=None):
         try:
+            self.ensure_voice_client()
             if self.voice_client:
                 if self.voice_client.is_playing():
                     self.voice_client.pause()
@@ -161,6 +169,7 @@ class Bot_Voice(commands.Cog):
 
     async def pause(self, ctx=None):
         try:
+            self.ensure_voice_client()
             if self.voice_client:
                 if self.voice_client.is_playing():
                     self.voice_client.pause()
@@ -175,6 +184,7 @@ class Bot_Voice(commands.Cog):
 
     async def resume(self, ctx=None):
         try:
+            self.ensure_voice_client()
             if self.voice_client:
                 if self.voice_client.is_paused():
                     self.voice_client.resume()
@@ -189,7 +199,9 @@ class Bot_Voice(commands.Cog):
 
     async def volume(self, volume: int, ctx = None):
         try:
+            self.ensure_voice_client()
             if self.voice_client is None:
+                print("Not connected to a voice channel")
                 raise Exception("Not connected to a voice channel")
     
             self.voice_client.source.volume = volume / 100
