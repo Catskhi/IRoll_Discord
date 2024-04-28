@@ -51,7 +51,6 @@ onMounted(() => {
     webSocket.onmessage = (event) => {
         if (webSocket) {
             const player_data = JSON.parse(event.data) as player_data
-            console.log(player_data)
             musicPlayerStore.isPlaying = player_data.is_playing
             if (player_data.song_title) {
                 musicPlayerStore.currentSongName = player_data.song_title
