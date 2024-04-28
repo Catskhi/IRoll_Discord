@@ -122,6 +122,7 @@ class Bot_Voice(commands.Cog):
     async def play_local_file(self, file_path: str, channel_id: int | None = None):
         try:
             await self.handle_join_play_channel(channel_id=channel_id)
+            self.ensure_voice_client()
             if self.voice_client:
                 async with self.command_channel.typing():
                     if self.voice_client.is_playing():
@@ -129,7 +130,7 @@ class Bot_Voice(commands.Cog):
                     audio_source = discord.FFmpegPCMAudio(file_path)
                     self.voice_client.play(audio_source)
                     if manager:
-                        await manager.broadcast_json({'is_playing': self.voice_client.is_playing()})
+                        await manager.broadcast_json({'is_playing': self.voice_client.is_playing(), 'song_title': player.title})
             else:
                 raise Exception("There is no voice client.")
             await self.command_channel.send(f"Now playing: {os.path.basename(file_path)}")
@@ -139,6 +140,7 @@ class Bot_Voice(commands.Cog):
     async def stream(self, *, url: str, channel_id: int | None = None):
         try:
             await self.handle_join_play_channel(channel_id)
+            self.ensure_voice_client()
             if self.voice_client:
                 async with self.command_channel.typing():
                     if self.voice_client.is_playing():
@@ -146,10 +148,11 @@ class Bot_Voice(commands.Cog):
                     player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
                     self.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
                     if manager:
-                        await manager.broadcast_json({'is_playing': self.voice_client.is_playing()})
+                        await manager.broadcast_json({'is_playing': self.voice_client.is_playing(), 'song_title': player.title})
+                        
             else:
                 raise Exception("There is no voice client.")
-            await command_channel.send(f'Now playing: {player.title}')
+            await self.command_channel.send(f'Now playing: {player.title}')
         except Exception as error:
             print(f"An error occurred: {error}")
 
