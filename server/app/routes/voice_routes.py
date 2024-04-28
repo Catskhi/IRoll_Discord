@@ -85,7 +85,6 @@ async def voice_websocket(websocket: WebSocket, client_id: str):
     try:
         while True:
             data = await websocket.receive_text()
-            # await manager.send_personal_message('Pong', websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         print(f'Client #{client_id} disconnected.')
