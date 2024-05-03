@@ -1,17 +1,39 @@
-import { Client, GatewayIntentBits } from 'discord.js';
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+import { Client, Collection, CommandInteraction, Events, GatewayIntentBits, Interaction, SlashCommandBuilder } from 'discord.js';
+import dotenv from 'dotenv'
+import path from 'path'
+import fs from 'fs'
 
-client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-});
+dotenv.config()
 
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isChatInputCommand()) return;
+const client = new Client({ intents: [
+  GatewayIntentBits.Guilds, 
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.MessageContent
+]});
 
-  if (interaction.commandName === 'ping') {
-    await interaction.reply('Pong!');
+client.commands = new Collection()
+const foldersPath = path.join(__dirname, 'commands')
+const commandFolders = fs.readdirSync(foldersPath)
+
+for (const folder of commandFolders) {
+	const commandsPath = path.join(foldersPath, folder);
+	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
+	for (const file of commandFiles) {
+		const filePath = path.join(commandsPath, file);
+		const command = require(filePath);
+		if ('data' in command && 'execute' in command) {
+			client.commands.set(command.data.name, command);
+		} else {
+			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		}
+	}
+}
+
+client.on('messageCreate', async (message) => {
+  if (message.content === 'ping') {
+    message.reply('Pong!')
   }
-});
+})
 
-console.log(`Token: ${Bun.env.DISCORD_TOKEN}`)
-client.login(Bun.env.DISCORD_TOKEN);
+console.log(`Token: ${process.env.DISCORD_TOKEN}`)
+client.login(process.env.DISCORD_TOKEN);
