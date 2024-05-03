@@ -1,6 +1,6 @@
 import { Events, Interaction } from 'discord.js'
 
-export default {
+module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction) {
         if (!interaction.isChatInputCommand()) return;
