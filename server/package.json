@@ -1,19 +1,21 @@
 {
   "name": "iroll_discord",
-  "module": "index.ts",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "An manager for your discord RPG sessions.",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "bun run --watch index.ts"
+    "dev": "tsx watch src/index.ts"
   },
+  "author": "Catskhi",
+  "license": "ISC",
   "devDependencies": {
-    "@types/bun": "^1.1.0"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+    "eslint": "^9.1.1",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@discordjs/voice": "^0.16.1",
+    "@types/node": "^20.12.7",
     "discord.js": "^14.14.1",
-    "eslint": "^9.1.1"
+    "dotenv": "^16.4.5",
+    "tsx": "^4.8.2"
   }
 }
