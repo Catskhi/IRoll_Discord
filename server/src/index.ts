@@ -29,11 +29,18 @@ for (const folder of commandFolders) {
 	}
 }
 
-client.on('messageCreate', async (message) => {
-  if (message.content === 'ping') {
-    message.reply('Pong!')
-  }
-})
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'));
+
+for (const file of eventFiles) {
+	const filePath = path.join(eventsPath, file);
+	const event = require(filePath);
+	if (event.once) {
+		client.once(event.name,(...args) => event.execute(...args));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args));
+	}
+}
 
 console.log(`Token: ${process.env.DISCORD_TOKEN}`)
 client.login(process.env.DISCORD_TOKEN);
