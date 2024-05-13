@@ -5,10 +5,11 @@ import fs from 'fs'
 
 dotenv.config()
 
-const client = new Client({ intents: [
+export const client = new Client({ intents: [
   GatewayIntentBits.Guilds, 
   GatewayIntentBits.GuildMessages,
-  GatewayIntentBits.MessageContent
+  GatewayIntentBits.MessageContent,
+  GatewayIntentBits.GuildVoiceStates
 ]});
 
 client.commands = new Collection()
