@@ -1,8 +1,8 @@
-import { Events, Interaction } from 'discord.js'
+import { Events, CommandInteraction } from 'discord.js'
 
 module.exports = {
     name: Events.InteractionCreate,
-    async execute(interaction: Interaction) {
+    async execute(interaction: CommandInteraction) {
         if (!interaction.isChatInputCommand()) return;
 
         const command = interaction.client.commands.get(interaction.commandName);
