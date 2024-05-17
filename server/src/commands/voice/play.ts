@@ -1,8 +1,7 @@
 import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from 'discord.js';
-import { joinVoiceChannel, createAudioPlayer, NoSubscriberBehavior, createAudioResource, AudioPlayer } from '@discordjs/voice';
+import { joinVoiceChannel, createAudioPlayer, NoSubscriberBehavior, createAudioResource, AudioPlayer, AudioPlayerStatus } from '@discordjs/voice';
 import ytdl from 'ytdl-core';
-
-export let player: AudioPlayer | undefined;
+import { audioPlayerHandler } from '../../handlers/AudioPlayerHandler';
 
 export const data = new SlashCommandBuilder()
     .setName('play')
@@ -21,10 +20,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         guildId: interaction.guildId as string,
         adapterCreator: interaction.guild!.voiceAdapterCreator
     });
-    player = createAudioPlayer();
-    const stream = ytdl(url, { filter : 'audioonly' });
-    const resource = createAudioResource(stream);
-    player.play(resource);
-    voiceChannel.subscribe(player);
+    audioPlayerHandler.enqueueAndPlay(url);
+    voiceChannel.subscribe(audioPlayerHandler.player!);
     interaction.reply(`Now playing: ${url}`);
 }
