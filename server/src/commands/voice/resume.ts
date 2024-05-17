@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { player } from "./play";
+import { audioPlayerHandler } from "../../handlers/AudioPlayerHandler";
 
 
 export const data = new SlashCommandBuilder()
@@ -7,8 +7,8 @@ export const data = new SlashCommandBuilder()
     .setDescription('Resume the audio.');
 
 export async function execute(interaction: ChatInputCommandInteraction) {
-    if (player) {
-        player.unpause();
+    if (audioPlayerHandler.player) {
+        audioPlayerHandler.player.unpause();
         interaction.reply("Resumed song.");
     } else {
         interaction.reply("There is no audio playing");
