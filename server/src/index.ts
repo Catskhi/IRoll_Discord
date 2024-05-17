@@ -1,7 +1,10 @@
-import { Client, Collection, CommandInteraction, Events, GatewayIntentBits, Interaction, SlashCommandBuilder } from 'discord.js';
+import { Client, Collection, CommandInteraction, Events, GatewayIntentBits, Interaction, SlashCommandBuilder, VoiceState } from 'discord.js';
 import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
+import { audioPlayerHandler } from './handlers/AudioPlayerHandler';
+import { AudioPlayer, AudioPlayerStatus, VoiceConnectionStatus, createAudioPlayer } from '@discordjs/voice';
+import registerAudioPlayerEvents from './events/registerAudioPlayerEvents';
 
 dotenv.config()
 
@@ -42,6 +45,9 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
+audioPlayerHandler.setAudioPlayer(createAudioPlayer());
+registerAudioPlayerEvents(audioPlayerHandler.player!);
 
 console.log(`Token: ${process.env.DISCORD_TOKEN}`)
 client.login(process.env.DISCORD_TOKEN);
