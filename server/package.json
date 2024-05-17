@@ -4,7 +4,8 @@
   "description": "An manager for your discord RPG sessions.",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "reload": "npx tsx src/deployCommands.ts  "
   },
   "author": "Catskhi",
   "license": "ISC",
