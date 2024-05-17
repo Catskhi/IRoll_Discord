@@ -1,14 +1,14 @@
 import { VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { player } from "./play";
+import { audioPlayerHandler } from "../../handlers/AudioPlayerHandler";
 
 export const data = new SlashCommandBuilder()
     .setName('pause')
     .setDescription('Pause the current music.');
 
 export async function execute(interaction: ChatInputCommandInteraction) {
-    if (player) {
-        player.pause();
+    if (audioPlayerHandler.player) {
+        audioPlayerHandler.player.pause();
         interaction.reply("Paused audio.");
     } else {
         interaction.reply("There is no audio playing");
