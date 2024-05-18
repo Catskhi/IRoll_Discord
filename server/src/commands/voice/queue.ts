@@ -10,7 +10,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     if (queue.length < 1) {
         interaction.reply("The queue is empty");
     } else {
-        let songList: string = queue.map(song => song.title).join('\n')
+        let songList: string = queue.map((song, index) => `${index + 1} - ${song.title}`).join('\n')
         interaction.reply(`Queue: \n${"`" + songList + "`"}`);
     }
 }
