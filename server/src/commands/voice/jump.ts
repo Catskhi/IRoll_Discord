@@ -18,6 +18,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const index = interaction.options.get('position')!.value as number;
     if (index > audioPlayerHandler.queue.length || index < 0) {
         interaction.reply('Invalid queue index.');
+        return;
     }
     const currentSong = audioPlayerHandler.playFromIndex(index - 1);
     interaction.reply(`Now playing: ${currentSong}`);
