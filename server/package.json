@@ -19,6 +19,7 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "libsodium-wrappers": "^0.7.13",
+    "opusscript": "^0.0.8",
     "tsx": "^4.8.2",
     "ytdl-core": "^4.11.5"
   }
