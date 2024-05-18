@@ -1,5 +1,4 @@
 import { AudioPlayer, AudioResource, createAudioResource } from "@discordjs/voice";
-import { create } from "domain";
 import ytdl from "ytdl-core";
 
 export interface SongProps {
@@ -9,7 +8,8 @@ export interface SongProps {
 
 class AudioPlayerHandler {
     public player: AudioPlayer | undefined;
-    public currentResource: AudioResource | null = null;;
+    public currentVolume: number = 100;
+    public currentResource: AudioResource | null = null;
     public queue: Array<SongProps> = [];
     public positionInQueue: number = 0;
     public loopQueue: boolean = false;
@@ -19,27 +19,32 @@ class AudioPlayerHandler {
         this.player = newAudioPlayer;
     }
 
+    public setVolume(newVolume: number) {
+        this.currentVolume = newVolume;
+        if (this.currentResource !== null) {
+            console.log(`Volume: ${this.currentResource.volume}`)
+            this.currentResource.volume?.setVolume(this.currentVolume);
+        }
+    }
+
     public async enqueueAndPlay(songUrl: string) {
         if(await this.enqueue(songUrl)) {
             this.positionInQueue = this.queue.length - 1;
-            console.log(this.positionInQueue);
-            const stream = ytdl(songUrl, { filter : 'audioonly' });
-            this.currentResource = createAudioResource(stream);
-            this.player!.play(this.currentResource);
+            this.createResourceFromUrl(songUrl);
+            this.player!.play(this.currentResource!);
         }
     }
 
     public playFromIndex(index: number) {
-        const stream = ytdl(this.queue[index].url, { filter: 'audioonly' });
-        this.currentResource = createAudioResource(stream);
-        this.player?.play(this.currentResource);
+        this.positionInQueue = index;
+        this.createResourceFromUrl(this.queue[index].url);
+        this.player?.play(this.currentResource!);
         return this.queue[index].title;
     }
 
     public replayCurrentSong() {
-        const stream = ytdl(this.queue[this.positionInQueue].url, { filter: 'audioonly' });
-        this.currentResource = createAudioResource(stream);
-        this.player!.play(this.currentResource);
+        this.createResourceFromUrl(this.queue[this.positionInQueue].url);
+        this.player!.play(this.currentResource!);
     }
 
     public async playNext() {
@@ -54,9 +59,9 @@ class AudioPlayerHandler {
             this.positionInQueue++;
         }
         const nextSong = this.queue[this.positionInQueue];
-        const stream = ytdl(nextSong.url, { filter: 'audioonly' });
-        const resource = createAudioResource(stream);
-        this.player!.play(resource);
+        this.createResourceFromUrl(nextSong.url);
+        console.log(`Current resource: ${this.currentResource}`);
+        this.player!.play(this.currentResource!);
     }
 
     public async playPrevious() {
@@ -71,9 +76,8 @@ class AudioPlayerHandler {
             this.positionInQueue--;
         }
         const previousSong = this.queue[this.positionInQueue];
-        const stream = ytdl(previousSong.url, { filter: 'audioonly' });
-        const resource = createAudioResource(stream);
-        this.player!.play(resource);
+        this.createResourceFromUrl(previousSong.url);
+        this.player!.play(this.currentResource!);
     }
     
     public getQueue(): Array<SongProps> {
@@ -107,7 +111,16 @@ class AudioPlayerHandler {
     }
 
     public removeFromIndex(index: number) {
-        this.queue.slice(index, 1);
+        if (this.positionInQueue === index) {
+            this.player?.stop();
+            this.currentResource = null;
+        }
+        this.queue.splice(index, 1);
+    }
+
+    private createResourceFromUrl(url: string) {
+        const stream = ytdl(url, { filter : 'audioonly' });
+        this.currentResource = createAudioResource(stream, { inlineVolume: true });
     }
 }
 
