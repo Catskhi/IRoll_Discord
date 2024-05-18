@@ -11,7 +11,11 @@ export const data = new SlashCommandBuilder()
     .addSubcommand(subcommand => 
         subcommand
             .setName('queue')
-            .setDescription('Loop the queue.'));
+            .setDescription('Loop the queue.'))
+    .addSubcommand(subcommand => 
+        subcommand
+            .setName('off')
+            .setDescription('Turns off the loop.'));
 
 export async function execute(interaction: ChatInputCommandInteraction) {
     if (audioPlayerHandler.queue.length == 0) {
@@ -29,6 +33,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     } else if (subcommand === 'queue') {
         audioPlayerHandler.loopQueue = true;
         audioPlayerHandler.loopTrack = false;
+        if (audioPlayerHandler.player?.state.status != 'playing') {
+            audioPlayerHandler.playNext();
+        }
         interaction.reply('Looping queue');
+    } else if (subcommand === 'off') {
+        audioPlayerHandler.loopQueue = false;
+        audioPlayerHandler.loopTrack = false;
+        interaction.reply('Loop turned off');
     }
 }
