@@ -31,7 +31,6 @@ class AudioPlayerHandler {
         if(await this.enqueue(songUrl)) {
             this.positionInQueue = this.queue.length - 1;
             this.createResourceFromUrl(songUrl);
-            this.player!.play(this.currentResource!);
         }
     }
 
