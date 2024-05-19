@@ -20,7 +20,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         guildId: interaction.guildId as string,
         adapterCreator: interaction.guild!.voiceAdapterCreator
     });
-    audioPlayerHandler.enqueueAndPlay(url);
     voiceChannel.subscribe(audioPlayerHandler.player!);
+    await audioPlayerHandler.enqueueAndPlay(url);
     interaction.reply(`Now playing: ${url}`);
 }
