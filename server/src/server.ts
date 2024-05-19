@@ -1,16 +1,14 @@
 import express, { Request, Response } from 'express';
 import { audioPlayerHandler } from './handlers/AudioPlayerHandler';
+import voice_routes from './routes/voice';
 
 const app = express();
 const port = 3000;
 
+app.use('/voice', voice_routes);
+
 app.get('/', (req: Request, res: Response) => {
     res.send('Hi');
-})
-
-app.post('/pause', (req: Request, res: Response) => {
-    audioPlayerHandler.player?.pause();
-    res.send('Paused song');
 })
 
 export const startApp = () => {
