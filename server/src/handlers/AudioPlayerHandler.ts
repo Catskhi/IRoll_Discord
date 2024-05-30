@@ -30,7 +30,7 @@ class AudioPlayerHandler {
     public async enqueueAndPlay(songUrl: string) {
         if(await this.enqueue(songUrl)) {
             this.positionInQueue = this.queue.length - 1;
-            this.createResourceFromUrl(songUrl);
+            this.playFromIndex(this.positionInQueue);
         }
     }
 
@@ -109,6 +109,11 @@ class AudioPlayerHandler {
         this.player?.stop();
     }
 
+    public stop() {
+        audioPlayerHandler.player!.off;
+        this.clearQueue();
+    }
+
     public removeFromIndex(index: number) {
         if (this.positionInQueue === index) {
             this.player?.stop();
@@ -118,7 +123,7 @@ class AudioPlayerHandler {
     }
 
     private createResourceFromUrl(url: string) {
-        const stream = ytdl(url, { filter : 'audioonly' });
+        const stream = ytdl(url, { filter : 'audioonly', quality: 'lowestaudio' });
         this.currentResource = createAudioResource(stream, { inlineVolume: true });
     }
 }
