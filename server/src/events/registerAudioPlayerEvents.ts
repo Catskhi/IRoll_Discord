@@ -1,4 +1,4 @@
-import { AudioPlayer, AudioPlayerStatus } from "@discordjs/voice";
+import { AudioPlayer, AudioPlayerError, AudioPlayerStatus } from "@discordjs/voice";
 import { audioPlayerHandler } from "../handlers/AudioPlayerHandler";
 
 export default function registerAudioPlayerEvents(player: AudioPlayer) {
@@ -22,4 +22,8 @@ export default function registerAudioPlayerEvents(player: AudioPlayer) {
     player.on(AudioPlayerStatus.Playing, (oldState, newState) => {
         console.log('Audio player is in the Playing state!');
     });
+
+    player.on('error', error => {
+        console.log(`An error occurred on audio player: ${error.message}`);
+    })
 }
