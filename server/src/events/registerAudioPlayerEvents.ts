@@ -1,5 +1,6 @@
 import { AudioPlayer, AudioPlayerError, AudioPlayerStatus } from "@discordjs/voice";
 import { audioPlayerHandler } from "../handlers/AudioPlayerHandler";
+import { io } from "../server";
 
 export default function registerAudioPlayerEvents(player: AudioPlayer) {
     player.on(AudioPlayerStatus.Idle, (oldState, newState) => {
@@ -12,6 +13,7 @@ export default function registerAudioPlayerEvents(player: AudioPlayer) {
             if (audioPlayerHandler.positionInQueue >= audioPlayerHandler.queue.length - 1) {
                 if (audioPlayerHandler.loopQueue === false) {
                     console.log('There are no more songs on the queue.');
+                    audioPlayerHandler.emitCurrentState();
                     return;
                 }
             }
@@ -19,8 +21,14 @@ export default function registerAudioPlayerEvents(player: AudioPlayer) {
         }
     });
 
+    player.on(AudioPlayerStatus.Paused, (oldState, newState) => {
+        console.log('Audio player is in the Paused state!');
+        audioPlayerHandler.emitCurrentState();
+    })
+
     player.on(AudioPlayerStatus.Playing, (oldState, newState) => {
         console.log('Audio player is in the Playing state!');
+        audioPlayerHandler.emitCurrentState();
     });
 
     player.on('error', error => {
