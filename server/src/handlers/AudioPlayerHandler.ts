@@ -1,5 +1,6 @@
 import { AudioPlayer, AudioResource, createAudioResource } from "@discordjs/voice";
 import ytdl from "ytdl-core";
+import { io } from "../server";
 
 export interface SongProps {
     title: string,
@@ -119,7 +120,30 @@ class AudioPlayerHandler {
             this.player?.stop();
             this.currentResource = null;
         }
+        const currentSongTitle = this.queue[this.positionInQueue].title;
         this.queue.splice(index, 1);
+        this.positionInQueue = this.queue.findIndex(song => song.title === currentSongTitle);
+        this.emitCurrentState();
+    }
+
+    public getCurrentState() {
+        return {
+            positionInQueue: this.positionInQueue,
+            queueSize: this.queue.length,
+            queue: this.queue,
+            volume: this.currentVolume,
+            status: this.player?.state.status
+        };
+    }
+
+    public emitCurrentState() {
+        try {
+            if (io) {
+                return io.emit('current-state', this.getCurrentState());
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     private createResourceFromUrl(url: string) {
