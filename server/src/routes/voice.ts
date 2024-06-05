@@ -2,6 +2,8 @@ import { NextFunction, Request, Response, Router } from "express";
 import { audioPlayerHandler } from "../handlers/AudioPlayerHandler";
 import { client } from "../botClient";
 import { getVoiceConnection, joinVoiceChannel } from "@discordjs/voice";
+import { io } from "../server";
+import { connectionHandler } from "../handlers/connectionHandler";
 
 export const router = Router();
 
@@ -37,23 +39,27 @@ router.post('/play', async (req: Request, res: Response) => {
             });
         }
 
+        
         const connection = joinVoiceChannel({
             channelId: channel.id,
             guildId: channel.guild.id,
             adapterCreator: channel.guild.voiceAdapterCreator
         });
+        connectionHandler.setCurrentConnection(connection);
         for (const [guildId, guild] of client.guilds.cache) {
             if (guildId !== channel.guild.id) {
                 const voiceConnection = getVoiceConnection(guildId);
                 if (voiceConnection) {
                     voiceConnection.destroy();
+                    audioPlayerHandler.clearQueue();
                 }
             }
         }
 
-        audioPlayerHandler.clearQueue();
-        connection.subscribe(audioPlayerHandler.player!);
-        audioPlayerHandler.enqueueAndPlay(songUrl);
+        connectionHandler.currentConnection?.subscribe(audioPlayerHandler.player!);
+        await audioPlayerHandler.enqueueAndPlay(songUrl);
+        const queue = audioPlayerHandler.getQueue();
+        io.emit('play-song', queue[queue.length - 1]);
 
         res.status(200).send('Joined the voice channel and playing the song');
     } catch (error) {
@@ -61,6 +67,44 @@ router.post('/play', async (req: Request, res: Response) => {
         res.status(500).send({
             message: 'An error occurred while trying to join the voice channel.'
         });
+    }
+})
+
+router.post('/playFromIndex', (req: Request, res: Response) => {
+    const index: number | undefined = req.body.index;
+    if (index === undefined) {
+        return res.status(400).send({
+            message: "You must provide an index"
+        });
+    }
+    try {
+        if (connectionHandler.getCurrentConnection() == undefined) {
+            return res.status(400).send({
+                message: "The bot must be connected to a voice channel"
+            });
+        }
+        audioPlayerHandler.playFromIndex(index!);
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+router.post('/removeFromIndex', (req: Request, res: Response) => {
+    const index: number | undefined = req.body.index;
+    if (index === undefined) {
+        return res.status(400).send({
+            message: "You must provide an index"
+        });
+    }
+    try {
+        if (connectionHandler.getCurrentConnection() == undefined) {
+            return res.status(400).send({
+                message: "The bot must be connected to a voice channel"
+            });
+        }
+        audioPlayerHandler.removeFromIndex(index!);
+    } catch (error) {
+        console.log(error);
     }
 })
 
