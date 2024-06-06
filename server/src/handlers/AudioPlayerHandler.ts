@@ -79,6 +79,24 @@ class AudioPlayerHandler {
         this.createResourceFromUrl(previousSong.url);
         this.player!.play(this.currentResource!);
     }
+
+    public loop(option: 'queue' | 'track') {
+        console.log(option)
+        if (option === 'queue') {
+            this.loopQueue = true;
+            this.loopTrack = false;
+        } else {
+            this.loopQueue = false;
+            this.loopTrack = true;
+        }
+        this.emitCurrentState();
+    }
+
+    public disableLoop() {
+        this.loopQueue = false;
+        this.loopTrack = false;
+        this.emitCurrentState();
+    }
     
     public getQueue(): Array<SongProps> {
         return this.queue;
@@ -132,7 +150,9 @@ class AudioPlayerHandler {
             queueSize: this.queue.length,
             queue: this.queue,
             volume: this.currentVolume,
-            status: this.player?.state.status
+            status: this.player?.state.status,
+            loopQueue: this.loopQueue,
+            loopTrack: this.loopTrack
         };
     }
 
@@ -147,7 +167,7 @@ class AudioPlayerHandler {
     }
 
     private createResourceFromUrl(url: string) {
-        const stream = ytdl(url, { filter : 'audioonly', quality: 'lowestaudio' });
+        const stream = ytdl(url, { filter : 'audioonly', quality: 'lowestaudio'});
         this.currentResource = createAudioResource(stream, { inlineVolume: true });
     }
 }
