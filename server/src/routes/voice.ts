@@ -108,6 +108,34 @@ router.post('/removeFromIndex', (req: Request, res: Response) => {
     }
 })
 
+router.post('/loop', (req: Request, res: Response) => {
+    const option: 'queue' | 'track' | undefined = req.body.option;
+    if (option === undefined) {
+        return res.status(400).send({
+            message: "You must provide a valid option"
+        });
+    }
+    try {
+        audioPlayerHandler.loop(option);
+        return res.status(200).send({
+            message: 'Changed loop'
+        });
+    } catch (error) {
+        console.log(error);
+    }  
+})
+
+router.post('/disableLoop', (req: Request, res: Response) => {
+    try {
+        audioPlayerHandler.disableLoop();
+        return res.status(200).send({
+            message: 'Disabled loop'
+        });
+    } catch (error) {
+        console.log(error);
+    }
+})
+
 router.post('/pause', (req: Request, res: Response) => {
     audioPlayerHandler.player?.pause();
     return res.status(200).send({
