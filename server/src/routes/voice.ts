@@ -171,7 +171,7 @@ router.post('/volume/:volume', (req: Request, res: Response) => {
             error: "The volume must be a number between 0 and 100"
         })
     }
-    audioPlayerHandler.setVolume(newVolume);
+    audioPlayerHandler.setVolume(newVolume / 100);
     res.status(200).send({
         message: `Changed volume to ${newVolume}`
     })
