@@ -22,6 +22,7 @@ const channelId = ref<string>('');
 const loadingPlay = ref<boolean>(false);
 
 const currentStatus = ref<string>('idle');
+const volume = ref<number>(0);
 const currentSongName = ref<string | undefined>(undefined);
 const positionInQueue = ref<number>(0);
 const queue = ref<songToPlay[]>([]);
@@ -59,6 +60,7 @@ socket.on('current-state', (...args) => {
     queue.value = currentState.queue;
     positionInQueue.value = currentState.positionInQueue;
     queueSize.value = currentState.queueSize;
+    volume.value = currentState.volume * 100;
     if (currentState.loopQueue == true) {
         loopMode.value = 'queue';
     } else if (currentState.loopTrack == true) {
@@ -131,6 +133,24 @@ const changeLoop = async () => {
     }
 }
 
+const skipMusic = async () => {
+    await $fetch('http://localhost:5000/voice/skip/', {
+        method: 'POST',
+        onResponse(response) {
+            console.log(response);
+        }
+    })
+}
+
+const backMusic = async () => {
+    await $fetch('http://localhost:5000/voice/back/', {
+        method: 'POST',
+        onResponse(response) {
+            console.log(response);
+        }
+    })
+}
+
 </script>
 
 <template>
@@ -153,7 +173,7 @@ const changeLoop = async () => {
         </div>
     </main>
     <UDivider />
-    <footer class="basis-[15%] shrink-0 font-inter">
+    <footer class="basis-[15%] shrink-0 font-inter px-5">
         <div class="flex w-full h-full">
             <div class="basis-[25%] flex flex-col justify-center px-3 overflow-hidden"">
                 <div v-if="currentStatus !== 'idle'">
@@ -167,7 +187,7 @@ const changeLoop = async () => {
             <div class="basis-[50%] flex items-center justify-center">
                 <div class="space-x-3">
                     <UTooltip text="previous">
-                        <UButton variant="soft" square :ui="{ rounded: 'rounded-lg' }" :disabled="positionInQueue == 0">
+                        <UButton variant="soft" square :ui="{ rounded: 'rounded-lg' }" :disabled="positionInQueue == 0" @click="backMusic">
                             <Icon name="material-symbols:skip-previous-rounded" class="text-[50px]" />
                         </UButton>
                     </UTooltip>
@@ -178,7 +198,7 @@ const changeLoop = async () => {
                     </UTooltip>
                     <UTooltip text="next">
                         <UButton variant="soft" square :ui="{ rounded: 'rounded-lg' }" 
-                        :disabled="positionInQueue + 1 > queueSize || positionInQueue + 1 == queueSize">
+                        :disabled="positionInQueue + 1 > queueSize || positionInQueue + 1 == queueSize" @click="skipMusic">
                             <Icon name="material-symbols:skip-next-rounded" class="text-[50px]" />
                         </UButton>
                     </UTooltip>
@@ -191,8 +211,8 @@ const changeLoop = async () => {
                     </UTooltip>
                 </div>
             </div>
-            <div class="basis-[25%] flex items-center justify-center px-5">
-                <Volume />
+            <div class="basis-[25%] flex items-center justify-center">
+                <Volume v-model:volume="volume"/>
             </div>
         </div>
     </footer>
