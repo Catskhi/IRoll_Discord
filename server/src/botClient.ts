@@ -15,14 +15,14 @@ export const client = new Client({ intents: [
   GatewayIntentBits.GuildVoiceStates
 ]});
 
-export const startClient = () => {
+export const startClient = async () => {
 	client.commands = new Collection()
 	const foldersPath = path.join(__dirname, 'commands')
 	const commandFolders = fs.readdirSync(foldersPath)
 	
 	for (const folder of commandFolders) {
 		const commandsPath = path.join(foldersPath, folder);
-		const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
+		const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
 		for (const file of commandFiles) {
 			const filePath = path.join(commandsPath, file);
 			const command = require(filePath);
@@ -35,7 +35,7 @@ export const startClient = () => {
 	}
 
 	const eventsPath = path.join(__dirname, 'events');
-	const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'));
+	const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
 	
 	for (const file of eventFiles) {
 		const filePath = path.join(eventsPath, file);
@@ -51,6 +51,6 @@ export const startClient = () => {
 	registerAudioPlayerEvents(audioPlayerHandler.player!);
 	
 	console.log(`Token: ${process.env.DISCORD_TOKEN}`);
-	client.login(process.env.DISCORD_TOKEN);
+	await client.login(process.env.DISCORD_TOKEN);
 }
 
