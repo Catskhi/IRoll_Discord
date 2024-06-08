@@ -25,7 +25,13 @@ Currently, the project provides an interface that lets the DM control all the ga
 - Skip songs
 
 
-## 💻 Run Locally
+## 💻 Prerequisites
+
+To run this project, you must have the following prerequisites:
+- Node on version 18 or later
+- A discord bot on the [Discord Developer Portal](https://discord.com/developers/docs/intro)
+- Basic knowledge on Discord bot development
+## 🚀 Run Locally
 
 Clone the project
 
@@ -49,6 +55,16 @@ On both folders, install the dependencies
 ```
   npm install
 ```
+
+Before starting the project, you will need to set the following environment variables to your .env file:
+
+- The token of your discord bot
+
+    `DISCORD TOKEN`
+
+- Your discord client ID
+
+    `DISCORD_CLIENT_ID`
 
 Build and start
 
@@ -86,4 +102,13 @@ Build and start
     </td>
   </tr>
 </table>
+
+
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+`API_KEY`
+
+`ANOTHER_API_KEY`
 
