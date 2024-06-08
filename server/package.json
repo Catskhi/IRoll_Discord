@@ -5,7 +5,9 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "reload": "npx tsx src/deployCommands.ts  "
+    "reload": "npx tsx src/deployCommands.ts",
+    "build": "npx tsc",
+    "start": "node dist/index.js"
   },
   "author": "Catskhi",
   "license": "ISC",
