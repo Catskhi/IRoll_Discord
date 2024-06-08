@@ -178,7 +178,7 @@ const backMusic = async () => {
             <div class="basis-[25%] flex flex-col justify-center px-3 overflow-hidden"">
                 <div v-if="currentStatus !== 'idle' && queue.length > 0">
                     <div class="font-light w-full">Now Playing:</div>
-                    <span class="font-semibold truncate w-full">{{  queue[positionInQueue].title }}</span>
+                    <div class="font-semibold truncate w-full">{{  queue[positionInQueue].title }}</div>
                 </div>
                 <div v-else>
                     <span class="select-none">No song playing now</span>
