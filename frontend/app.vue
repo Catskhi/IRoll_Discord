@@ -1,3 +1,13 @@
+<script setup lang="ts">
+useHead({
+  link: [{ rel: 'icon', href: 'discord-icon.png' }]
+})
+
+useSeoMeta({
+  title: 'IRoll Discord'
+})
+</script>
+
 <template>
   <div>
     <NuxtPage />
